@@ -1,8 +1,11 @@
+import { ThemeId } from './themes';
+
 /** Campaign definition: ten nights, each more demanding than the last. */
 export interface NightDef {
   id: number;          // 1-based night number
   name: string;
   flavor: string;
+  theme: ThemeId;      // art direction (see themes.ts)
   time: number;        // seconds until dawn
   quota: number;       // coin the Guild demands before dawn
   speed: number;       // watchman base turn speed (rad/s)
@@ -21,6 +24,7 @@ export interface NightDef {
 export const NIGHTS: NightDef[] = [
   {
     id: 1, name: "Beggar's Yard",
+    theme: 'slums',
     flavor: 'A sleepy corner of the city. One old watchman, half in his cups. Learn the trade.',
     time: 90, quota: 60, speed: 0.8, cone: 0.56, revMin: 6, revMax: 10,
     maxMarks: 3, patrols: 0, patrolSpeed: 0,
@@ -28,6 +32,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 2, name: 'Cloth Market',
+    theme: 'market',
     flavor: 'Merchants count their takings under the awnings. Rob one and the whole square stirs.',
     time: 90, quota: 100, speed: 0.9, cone: 0.58, revMin: 5, revMax: 9,
     maxMarks: 4, patrols: 0, patrolSpeed: 0,
@@ -35,6 +40,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 3, name: 'Harbor Steps',
+    theme: 'harbor',
     flavor: 'Nobles drift home from the pleasure barges, purses heavy, feet unsteady — and never still.',
     time: 90, quota: 150, speed: 1.0, cone: 0.6, revMin: 5, revMax: 9,
     maxMarks: 4, patrols: 0, patrolSpeed: 0,
@@ -42,6 +48,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 4, name: 'Temple Rise',
+    theme: 'temple',
     flavor: 'A second lantern walks the colonnade now. Two gazes to slip between.',
     time: 90, quota: 200, speed: 1.05, cone: 0.62, revMin: 5, revMax: 8,
     maxMarks: 5, patrols: 1, patrolSpeed: 0.5,
@@ -49,6 +56,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 5, name: 'Gilded Row',
+    theme: 'gilded',
     flavor: 'The watch has salted the crowd with constables in plain coats. Mind the red plume.',
     time: 90, quota: 260, speed: 1.1, cone: 0.64, revMin: 4, revMax: 8,
     maxMarks: 5, patrols: 1, patrolSpeed: 0.55,
@@ -56,6 +64,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 6, name: 'The Undermarket',
+    theme: 'undermarket',
     flavor: 'Stolen goods bought and sold by torchlight. Everyone here watches everyone.',
     time: 85, quota: 330, speed: 1.18, cone: 0.66, revMin: 4, revMax: 7,
     maxMarks: 6, patrols: 1, patrolSpeed: 0.62,
@@ -63,6 +72,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 7, name: "Magistrate's Square",
+    theme: 'magistrate',
     flavor: 'The magistrate doubles the patrol after your last visit. You are becoming famous.',
     time: 85, quota: 400, speed: 1.25, cone: 0.68, revMin: 4, revMax: 7,
     maxMarks: 6, patrols: 2, patrolSpeed: 0.62,
@@ -70,6 +80,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 8, name: 'The Old Bastion',
+    theme: 'bastion',
     flavor: 'Garrison pay night. Soldiers, gold, and a lantern that never seems to rest.',
     time: 85, quota: 480, speed: 1.32, cone: 0.7, revMin: 3, revMax: 6,
     maxMarks: 6, patrols: 2, patrolSpeed: 0.68,
@@ -77,6 +88,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 9, name: 'Cathedral Close',
+    theme: 'cathedral',
     flavor: 'Pilgrims, relic-sellers, and half the city watch. Steal beneath the bells.',
     time: 80, quota: 560, speed: 1.4, cone: 0.72, revMin: 3, revMax: 6,
     maxMarks: 7, patrols: 2, patrolSpeed: 0.75,
@@ -84,6 +96,7 @@ export const NIGHTS: NightDef[] = [
   },
   {
     id: 10, name: 'The Palace Court',
+    theme: 'palace',
     flavor: 'The king’s own masquerade. Every purse is a fortune; every shadow holds a blade. One last job.',
     time: 100, quota: 700, speed: 1.5, cone: 0.74, revMin: 3, revMax: 5,
     maxMarks: 7, patrols: 3, patrolSpeed: 0.78,

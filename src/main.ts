@@ -37,6 +37,27 @@ function currentNight() {
   return NIGHTS[Math.min(save.night, NIGHTS.length) - 1];
 }
 
+/** One pip per night: green where the Guild has collected, gold where you stand. */
+function renderCampaign(elId: string, allDone = false): void {
+  const box = $(elId);
+  const cur = Math.min(save.night, NIGHTS.length);
+  box.innerHTML = '';
+  for (const n of NIGHTS) {
+    if (n.id > 1) {
+      const link = document.createElement('i');
+      link.className = 'link' +
+        (allDone || n.id < cur ? ' done' : n.id === cur ? ' next' : '');
+      box.appendChild(link);
+    }
+    const pip = document.createElement('i');
+    pip.className = 'pip' +
+      (allDone || n.id < cur ? ' done' : n.id === cur ? ' current' : '') +
+      (n.id === NIGHTS.length ? ' crown' : '');
+    pip.title = `Night ${n.id} — ${n.name}`;
+    box.appendChild(pip);
+  }
+}
+
 let S: GameState = newState(currentNight(), new Set(save.skills));
 let raf = 0;
 let last = 0;
@@ -64,8 +85,10 @@ function hideAllPanels(): void {
 
 function showStart(): void {
   const def = currentNight();
+  renderer.setTheme(def.theme, view);
   hideAllPanels();
   $('startTitle').textContent = `Night ${def.id} — ${def.name}`;
+  renderCampaign('startCampaign');
   $('startFlavor').textContent = def.flavor;
   $('startQuota').textContent = `The Guild demands ${def.quota} coin by dawn.`;
   $('startCoffers').textContent = `Guild coffers: ${save.coffers} coin`;
@@ -156,6 +179,7 @@ function end(kind: EndKind): void {
       break;
   }
   persist(save);
+  renderCampaign('endCampaign', kind === 'victory');
   $('endCoffers').textContent = `Guild coffers: ${save.coffers} coin`;
   hideAllPanels();
   $('endPanel').classList.add('show');

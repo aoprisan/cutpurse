@@ -66,6 +66,18 @@
   .node.owned b{color:var(--good)}
   .node.poor,.node.locked{opacity:.45;cursor:default}
   footer{padding:8px 18px calc(16px + env(safe-area-inset-bottom));color:var(--dim);font-style:italic;font-size:12.5px;text-align:center;max-width:440px}
+  /* campaign progress: one pip per night, lit as the campaign advances */
+  .campaign{display:flex;align-items:center;justify-content:center;margin:2px 0 12px}
+  .campaign i{display:block}
+  .campaign .pip{width:11px;height:11px;border-radius:50%;border:1px solid #4a3f6b;background:#1c1730;box-sizing:border-box}
+  .campaign .pip.done{background:#3f6b3f;border-color:#3f6b3f}
+  .campaign .pip.current{background:var(--lantern);border-color:var(--lantern);box-shadow:0 0 10px rgba(224,168,60,.75);animation:pipGlow 1.6s ease-in-out infinite alternate}
+  .campaign .pip.crown{border-color:var(--lantern)}
+  .campaign .link{width:13px;height:2px;background:#332b4e}
+  .campaign .link.done{background:#3f6b3f}
+  .campaign .link.next{background:linear-gradient(90deg,#3f6b3f,var(--lantern))}
+  @keyframes pipGlow{from{box-shadow:0 0 6px rgba(224,168,60,.45)}to{box-shadow:0 0 13px rgba(224,168,60,.9)}}
+  .campaignLabel{color:var(--dim);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -89,6 +101,7 @@
   </div>
   <div class="panel show" id="startPanel">
     <h2 id="startTitle">Night 1 — Beggar's Yard</h2>
+    <div class="campaign" id="startCampaign"></div>
     <p id="startFlavor"></p>
     <div class="quota" id="startQuota"></div>
     <div class="coffers" id="startCoffers"></div>
@@ -105,6 +118,7 @@
     <h2 id="endTitle">Dawn breaks</h2>
     <div class="big" id="endCoins">0</div>
     <p id="endText"></p>
+    <div class="campaign" id="endCampaign"></div>
     <div class="coffers" id="endCoffers"></div>
     <button id="nextBtn">Next night</button>
     <button id="endGuildBtn" class="ghost">The Guild</button>
