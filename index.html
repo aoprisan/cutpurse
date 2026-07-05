@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#131022">
+<meta name="description" content="Cutpurse — lift purses in the night market while the watchman's lantern looks away.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Cutpurse</title>
+<style>
+  :root{--night:#131022;--night2:#1c1730;--lantern:#e0a83c;--cloth:#a03030;--parch:#e3d5b3;--dim:#7a7290}
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{background:var(--night);color:var(--parch);font-family:Georgia,serif;
+    display:flex;flex-direction:column;align-items:center;user-select:none;-webkit-user-select:none;touch-action:manipulation;
+    padding-top:env(safe-area-inset-top)}
+  header{width:100%;max-width:440px;padding:12px 18px 4px;display:flex;justify-content:space-between;align-items:baseline}
+  h1{font-size:24px;letter-spacing:.3em;text-transform:uppercase;font-weight:400;color:var(--lantern);text-shadow:0 0 16px rgba(224,168,60,.4)}
+  .hud{display:flex;gap:16px;font-variant-numeric:tabular-nums;font-size:16px}
+  .hud span{color:var(--dim);font-size:11px;letter-spacing:.12em;text-transform:uppercase;display:block}
+  .hud b{transition:color .2s}
+  #wrap{position:relative;flex:1;width:100%;max-width:440px;min-height:0;display:flex;align-items:center;justify-content:center}
+  canvas{display:block;border-radius:12px;box-shadow:0 0 60px rgba(0,0,0,.6),inset 0 0 30px rgba(0,0,0,.4)}
+  .panel{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(10,8,20,.92);text-align:center;padding:24px;border-radius:12px;z-index:5;
+    backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+  .panel.show{display:flex;animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .panel h2{font-size:20px;letter-spacing:.22em;text-transform:uppercase;font-weight:400;margin-bottom:8px}
+  .panel p{color:var(--dim);font-style:italic;max-width:280px;line-height:1.5;margin-bottom:20px}
+  .panel .big{font-size:42px;color:var(--lantern);margin-bottom:2px;text-shadow:0 0 24px rgba(224,168,60,.5)}
+  button{background:var(--night2);border:1px solid var(--lantern);color:var(--lantern);cursor:pointer;
+    font-family:inherit;font-size:14px;letter-spacing:.15em;text-transform:uppercase;padding:13px 26px;border-radius:6px;margin:5px;
+    transition:background .15s,box-shadow .15s}
+  button:hover{background:#241d3e;box-shadow:0 0 18px rgba(224,168,60,.25)}
+  .relic{display:block;width:100%;max-width:290px;text-align:left;text-transform:none;letter-spacing:0;
+    border-color:#4a3f6b;color:var(--parch);padding:14px 16px}
+  .relic b{color:var(--lantern);display:block;font-size:15px;letter-spacing:.06em;margin-bottom:3px}
+  .relic small{color:var(--dim);font-style:italic}
+  footer{padding:8px 18px calc(16px + env(safe-area-inset-bottom));color:var(--dim);font-style:italic;font-size:13px;text-align:center;max-width:440px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Cutpurse</h1>
+  <div class="hud">
+    <div><span>coin</span><b id="coins">0</b></div>
+    <div><span>time</span><b id="time">90</b></div>
+    <div><span>luck</span><b id="hearts">♥♥♥</b></div>
+  </div>
+</header>
+<div id="wrap">
+  <canvas id="cv"></canvas>
+  <div class="panel" id="relicPanel">
+    <h2>A fence approaches</h2>
+    <p>Choose one relic to aid the night's work.</p>
+    <div id="relicBtns"></div>
+  </div>
+  <div class="panel show" id="startPanel">
+    <h2>The night market</h2>
+    <p>Tap a mark to lift their purse — but only while the watchman's lantern looks away. Three mistakes and the stocks await.</p>
+    <button id="startBtn">Begin the run</button>
+  </div>
+  <div class="panel" id="endPanel">
+    <h2 id="endTitle">Dawn breaks</h2>
+    <div class="big" id="endCoins">0</div>
+    <p id="endText"></p>
+    <button id="againBtn">Run again</button>
+  </div>
+</div>
+<footer>Tap marks outside the lantern's gaze.</footer>
+<script type="module" src="src/main.ts"></script>
+</body>
+</html>
