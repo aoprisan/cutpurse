@@ -1113,23 +1113,25 @@ export class Renderer {
 
   private drawMarkBody(m: Mark, seen: boolean, t: number): void {
     const ctx = this.ctx;
+    const garb = this.theme.garb;
     const cg = ctx.createLinearGradient(0, -12, 0, 20);
 
     switch (m.kind) {
       case 'merchant': {
         // round-bellied, broad hat, fat purse
         if (seen) { cg.addColorStop(0, '#a86a6a'); cg.addColorStop(1, '#6b3d3d'); }
-        else { cg.addColorStop(0, '#5f7a55'); cg.addColorStop(1, '#3a4d34'); }
+        else { cg.addColorStop(0, garb.merchant.coat[0]); cg.addColorStop(1, garb.merchant.coat[1]); }
         ctx.fillStyle = cg;
         ctx.beginPath(); ctx.ellipse(0, 9, 11, 11, 0, 0, TAU); ctx.fill();
         // sash
-        ctx.strokeStyle = seen ? '#7a4444' : '#8a7040';
+        ctx.strokeStyle = seen ? '#7a4444' : garb.merchant.sash;
         ctx.lineWidth = 2.5;
         ctx.beginPath(); ctx.moveTo(-9, 4); ctx.lineTo(9, 12); ctx.stroke();
         // head + wide-brimmed hat
         ctx.fillStyle = '#c9a882';
         ctx.beginPath(); ctx.arc(0, -6, 5.5, 0, TAU); ctx.fill();
-        ctx.fillStyle = seen ? '#3d2626' : '#2e3a26';
+        if (garb.masked) this.drawMask(-6, 5.5);
+        ctx.fillStyle = seen ? '#3d2626' : garb.merchant.hat;
         ctx.beginPath(); ctx.ellipse(0, -9, 9.5, 3, 0, 0, TAU); ctx.fill();
         ctx.beginPath(); ctx.ellipse(0, -11.5, 4.5, 3.2, 0, 0, TAU); ctx.fill();
         this.drawPurse(m, t, 5.5);
@@ -1138,7 +1140,7 @@ export class Renderer {
       case 'noble': {
         // slim, tall, feathered cap, gold trim
         if (seen) { cg.addColorStop(0, '#a86a6a'); cg.addColorStop(1, '#6b3d3d'); }
-        else { cg.addColorStop(0, '#7a3d5a'); cg.addColorStop(1, '#4a2338'); }
+        else { cg.addColorStop(0, garb.noble.gown[0]); cg.addColorStop(1, garb.noble.gown[1]); }
         ctx.fillStyle = cg;
         ctx.beginPath(); ctx.ellipse(0, 7, 7.5, 12.5, 0, 0, TAU); ctx.fill();
         // gold trim
@@ -1148,10 +1150,11 @@ export class Renderer {
         // head + cap
         ctx.fillStyle = '#d8b896';
         ctx.beginPath(); ctx.arc(0, -8, 5, 0, TAU); ctx.fill();
-        ctx.fillStyle = seen ? '#3d2626' : '#5a2d42';
+        if (garb.masked) this.drawMask(-8, 5);
+        ctx.fillStyle = seen ? '#3d2626' : garb.noble.cap;
         ctx.beginPath(); ctx.ellipse(0.5, -11, 5.5, 3, -0.15, 0, TAU); ctx.fill();
         // feather
-        ctx.strokeStyle = '#d8cfa8';
+        ctx.strokeStyle = garb.noble.feather;
         ctx.lineWidth = 1.4;
         ctx.beginPath();
         ctx.moveTo(4, -12);
@@ -1190,15 +1193,25 @@ export class Renderer {
       default: {
         // commoner — hooded cloak
         if (seen) { cg.addColorStop(0, '#a86a6a'); cg.addColorStop(1, '#6b3d3d'); }
-        else { cg.addColorStop(0, '#6f6594'); cg.addColorStop(1, '#453d63'); }
+        else { cg.addColorStop(0, garb.commoner.robe[0]); cg.addColorStop(1, garb.commoner.robe[1]); }
         ctx.fillStyle = cg;
         ctx.beginPath(); ctx.ellipse(0, 8, 9, 11, 0, 0, TAU); ctx.fill();
         ctx.beginPath(); ctx.arc(0, -6, 7, 0, TAU); ctx.fill();
-        ctx.fillStyle = seen ? '#3d2626' : '#262038';
+        ctx.fillStyle = seen ? '#3d2626' : garb.commoner.hood;
         ctx.beginPath(); ctx.arc(0.5, -5, 4.5, 0, TAU); ctx.fill();
         this.drawPurse(m, t, 4.5);
       }
     }
+  }
+
+  /** A little masquerade domino across a bare face. */
+  private drawMask(headY: number, headR: number): void {
+    const ctx = this.ctx;
+    ctx.fillStyle = '#2c2444';
+    ctx.beginPath(); ctx.ellipse(0, headY - 0.5, headR * 0.95, 1.9, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(224,190,110,.8)';
+    ctx.fillRect(-headR * 0.5, headY - 1.1, 1.1, 1.1);
+    ctx.fillRect(headR * 0.5 - 1.1, headY - 1.1, 1.1, 1.1);
   }
 
   private drawPurse(m: Mark, t: number, size: number): void {

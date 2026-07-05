@@ -29,6 +29,11 @@ glass, yews and gravestones in Cathedral Close, and fireworks over the Palace Co
 plus the shared theatrics: a sky that warms toward dawn, flickering lantern beams with
 dust motes, a quota arc, coin bursts, screen shake, and a tiny WebAudio synth.
 
+The crowd dresses for the district too — sailor blues on the quay, pilgrim saffron on
+Temple Rise, masquerade masks at the Palace — though a constable's navy coat and red
+plume look the same on every night, because spotting them is the game. A campaign
+track on the night and dawn panels shows your progress pip by pip across all ten nights.
+
 ## Develop
 
 ```sh
