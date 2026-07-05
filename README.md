@@ -2,7 +2,9 @@
 
 A thieving campaign of ten nights, played by lantern-light. Tap a mark to lift their
 purse — but only while every watchman's lantern looks away. Meet the Guild's coin quota
-before dawn to advance; get caught three times and you lose the night's take.
+before dawn to advance; get caught three times and you lose the night's take. Once the
+quota is met a **Slip away** escape appears: bank the take and end the night on the spot,
+or push your luck till dawn for a bigger bank — and risk losing it all.
 
 ## The campaign
 

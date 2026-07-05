@@ -230,10 +230,14 @@ export function burst(s: GameState, x: number, y: number, kind: Particle['kind']
   }
 }
 
-/** Advance simulation. Returns 'timeup' when the night ends, otherwise null. */
-export function tick(s: GameState, dt: number): 'timeup' | null {
+/**
+ * Advance simulation. Returns 'timeup' when the night ends, otherwise null.
+ * `dt` is the capped step used for motion; `wallDt` is real elapsed seconds and
+ * drives the dawn clock, so throttled or dropped frames can never stall the night.
+ */
+export function tick(s: GameState, dt: number, wallDt: number = dt): 'timeup' | null {
   if (s.paused || s.over) return null;
-  s.t -= dt;
+  s.t -= Math.max(dt, wallDt);
   if (s.t <= 0) return 'timeup';
   s.revT -= dt;
   if (s.revT <= 0) {
