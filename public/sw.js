@@ -1,5 +1,5 @@
 /* Cutpurse service worker: network-first for navigations, cache-first for assets. */
-const CACHE = 'cutpurse-v1';
+const CACHE = 'cutpurse-v2';
 const PRECACHE = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
