@@ -67,6 +67,10 @@ export const sfx = {
   click(): void {
     tone(500, 0.05, { type: 'triangle', vol: 0.035 });
   },
+  quota(): void {
+    tone(587, 0.1, { type: 'triangle', vol: 0.05 });
+    tone(880, 0.18, { type: 'triangle', vol: 0.05, at: 0.08 });
+  },
   dawnClear(): void {
     tone(392, 0.25, { type: 'triangle', vol: 0.05 });
     tone(494, 0.25, { type: 'triangle', vol: 0.05, at: 0.12 });

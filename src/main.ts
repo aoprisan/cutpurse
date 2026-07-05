@@ -47,6 +47,13 @@ function hud(): void {
   ($('coins')).style.color = S.coins >= S.night.quota ? '#8cdc8c' : '';
   $('time').textContent = String(Math.ceil(Math.max(0, S.t)));
   $('hearts').textContent = '♥'.repeat(S.hearts) + (S.smoke ? '✶'.repeat(S.smoke) : '');
+  const slip = $('slipBtn');
+  if (!S.over && S.coins >= S.night.quota) {
+    slip.textContent = `Slip away · bank ${S.coins} coin`;
+    slip.classList.add('show');
+  } else {
+    slip.classList.remove('show');
+  }
 }
 
 function hideAllPanels(): void {
@@ -110,6 +117,7 @@ type EndKind = 'caught' | 'short' | 'clear' | 'victory';
 function end(kind: EndKind): void {
   S.over = true;
   cancelAnimationFrame(raf);
+  hud();
   const def = S.night;
   const title = $('endTitle');
   const text = $('endText');
@@ -194,6 +202,7 @@ cv.addEventListener('pointerdown', e => {
     }
   } else {
     const gain = Math.round(best.v * S.coinMult);
+    const wasShort = S.coins < S.night.quota;
     S.coins += gain;
     S.steals++;
     S.speed *= 1.06;
@@ -202,6 +211,10 @@ cv.addEventListener('pointerdown', e => {
     burst(S, bx, by, 'coin', 10);
     burst(S, bx, by, 'spark', 6);
     S.pops.push({ x: bx, y: by, txt: `+${gain}`, c: '#e0a83c', t: 1 });
+    if (wasShort && S.coins >= S.night.quota) {
+      sfx.quota();
+      S.pops.push({ x: bx, y: by - 30, txt: 'quota met — slip away!', c: '#8cdc8c', t: 1.6 });
+    }
     if (best.kind === 'merchant' && !S.muffled) {
       S.commotion += 0.15;
       S.pops.push({ x: bx, y: by - 16, txt: 'commotion!', c: '#e08050', t: 1.2 });
@@ -211,17 +224,23 @@ cv.addEventListener('pointerdown', e => {
   hud();
 });
 
+/** Night's terminal state: quota met means clear (or victory on the last night), else short. */
+function finishNight(): void {
+  if (S.coins >= S.night.quota) {
+    end(S.night.id >= NIGHTS.length ? 'victory' : 'clear');
+  } else {
+    end('short');
+  }
+}
+
 function loop(t: number): void {
-  const dt = Math.min(0.05, (t - last) / 1000);
+  const raw = Math.max(0, (t - last) / 1000);
   last = t;
-  const result = tick(S, dt);
+  const dt = Math.min(0.05, raw);
+  const result = tick(S, dt, Math.min(2, raw));
   if (result === 'timeup') {
     hud();
-    if (S.coins >= S.night.quota) {
-      end(S.night.id >= NIGHTS.length ? 'victory' : 'clear');
-    } else {
-      end('short');
-    }
+    finishNight();
     renderer.draw(S, view, dt);
     return;
   }
@@ -288,6 +307,10 @@ function press(id: string, fn: () => void): void {
 }
 
 press('startBtn', start);
+press('slipBtn', () => {
+  if (S.over || S.paused || S.coins < S.night.quota) return;
+  finishNight();
+});
 press('guildBtn', openGuild);
 press('endGuildBtn', openGuild);
 press('guildBackBtn', showStart);
