@@ -20,9 +20,14 @@ Clear the tenth night, the Palace Court, to finish the campaign.
   longer nights, better fences. Progress persists in `localStorage`.
 
 Built as an installable **TypeScript PWA** (offline-capable, add-to-home-screen) rendered
-on a 2D canvas: moonlit sky that warms toward dawn, cobbled plaza with market stalls and
-torch flames, drifting fog, flickering lantern beams with dust motes, a quota arc around
-the plaza rim, coin bursts, screen shake, and a tiny WebAudio synth for effects.
+on a 2D canvas. Every night has its own **art direction** (`src/themes.ts`): the muddy
+shanties of Beggar's Yard, bunting and awnings in the Cloth Market, sea-mist and ship
+masts at the Harbor Steps, a brazier-lit colonnade on Temple Rise, glass lamps and
+topiary along Gilded Row, the green torch-smoke of the sunless Undermarket, cold rain
+over the Magistrate's gallows, crenellated walls and embers at the Old Bastion, stained
+glass, yews and gravestones in Cathedral Close, and fireworks over the Palace Court —
+plus the shared theatrics: a sky that warms toward dawn, flickering lantern beams with
+dust motes, a quota arc, coin bursts, screen shake, and a tiny WebAudio synth.
 
 ## Develop
 

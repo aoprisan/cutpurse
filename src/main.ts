@@ -57,6 +57,7 @@ function hideAllPanels(): void {
 
 function showStart(): void {
   const def = currentNight();
+  renderer.setTheme(def.theme, view);
   hideAllPanels();
   $('startTitle').textContent = `Night ${def.id} — ${def.name}`;
   $('startFlavor').textContent = def.flavor;
