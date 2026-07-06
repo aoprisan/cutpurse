@@ -78,6 +78,9 @@
   .campaign .link.next{background:linear-gradient(90deg,#3f6b3f,var(--lantern))}
   @keyframes pipGlow{from{box-shadow:0 0 6px rgba(224,168,60,.45)}to{box-shadow:0 0 13px rgba(224,168,60,.9)}}
   .campaignLabel{color:var(--dim);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+  .ver{display:block;margin-top:5px;font-size:11px;font-style:normal;letter-spacing:.12em;opacity:.55}
+  /* the update button glows green once a fresh build is cached and waiting */
+  #updateBtn.ready{border-color:var(--good);color:var(--good);animation:slipPulse 1.6s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -107,6 +110,7 @@
     <div class="coffers" id="startCoffers"></div>
     <button id="startBtn">Begin the night</button>
     <button id="guildBtn" class="ghost">The Guild</button>
+    <button id="updateBtn" class="ghost">Update app</button>
   </div>
   <div class="panel" id="guildPanel">
     <h2>The Thieves' Guild</h2>
@@ -124,7 +128,7 @@
     <button id="endGuildBtn" class="ghost">The Guild</button>
   </div>
 </div>
-<footer>Tap marks outside every lantern's gaze. Meet the quota, then slip away — or push your luck till dawn.</footer>
+<footer>Tap marks outside every lantern's gaze. Meet the quota, then slip away — or push your luck till dawn.<span id="ver" class="ver"></span></footer>
 <script type="module" src="src/main.ts"></script>
 </body>
 </html>

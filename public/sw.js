@@ -1,11 +1,11 @@
 /* Cutpurse service worker: network-first for navigations, cache-first for assets. */
-const CACHE = 'cutpurse-v3';
+const CACHE = 'cutpurse-v4';
 const PRECACHE = ['./', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting())
-  );
+  // Precache the shell, but DON'T skipWaiting here: a fresh build stays "waiting"
+  // so the page can show an "Update app" button and swap on the player's command.
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)));
 });
 
 self.addEventListener('activate', e => {
@@ -14,6 +14,12 @@ self.addEventListener('activate', e => {
       .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
+});
+
+// The page posts this when the player taps "Update app": take over now, which
+// fires controllerchange in the page and triggers a single reload onto the new build.
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', e => {

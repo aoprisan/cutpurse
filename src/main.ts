@@ -15,6 +15,9 @@ const renderer = new Renderer(cv);
 const view: View = { W: 0, H: 0, CX: 0, CY: 0, R: 0 };
 const save = loadSave();
 
+/** Group thousands so a big banked total reads as savings, not a single payout. */
+const coin = (n: number): string => n.toLocaleString('en-US');
+
 function resize(): void {
   const wrap = $('wrap');
   const s = Math.min(wrap.clientWidth - 12, wrap.clientHeight - 12, 460);
@@ -91,7 +94,7 @@ function showStart(): void {
   renderCampaign('startCampaign');
   $('startFlavor').textContent = def.flavor;
   $('startQuota').textContent = `The Guild demands ${def.quota} coin by dawn.`;
-  $('startCoffers').textContent = `Guild coffers: ${save.coffers} coin`;
+  $('startCoffers').textContent = `Banked in the Guild vault: ${coin(save.coffers)} coin — spend it in the Guild.`;
   $('startPanel').classList.add('show');
   S = newState(def, new Set(save.skills));
   hud();
@@ -180,7 +183,7 @@ function end(kind: EndKind): void {
   }
   persist(save);
   renderCampaign('endCampaign', kind === 'victory');
-  $('endCoffers').textContent = `Guild coffers: ${save.coffers} coin`;
+  $('endCoffers').textContent = `Banked in the Guild vault: ${coin(save.coffers)} coin`;
   hideAllPanels();
   $('endPanel').classList.add('show');
   ($('endPanel') as HTMLElement).dataset.kind = kind;
@@ -276,7 +279,7 @@ function loop(t: number): void {
 // --- Guild skill tree panel ---
 
 function renderGuild(): void {
-  $('guildCoffers').textContent = `${save.coffers} coin in the coffers`;
+  $('guildCoffers').textContent = `${coin(save.coffers)} coin banked in the vault — spend it below`;
   const cols = $('treeCols');
   cols.innerHTML = '';
   const branches: Branch[] = ['fingers', 'shadow', 'guile'];
@@ -366,10 +369,53 @@ document.addEventListener('visibilitychange', () => {
 // idle attract render behind the start panel
 showStart();
 
+// --- app version + in-app update ---
+
+$('ver').textContent = `v${__APP_VERSION__}`;
+
+let swReg: ServiceWorkerRegistration | null = null;
+let updateArmed = false; // true once the player asks to update — gates the reload
+
+function showUpdateReady(): void {
+  const b = $('updateBtn');
+  b.textContent = 'Update ready — install';
+  b.classList.add('ready');
+}
+
+async function applyUpdate(): Promise<void> {
+  // Pull the newest worker, then hand control to whatever build is waiting.
+  try { await swReg?.update(); } catch { /* offline — fall through to a plain reload */ }
+  const waiting = swReg?.waiting;
+  if (waiting) {
+    updateArmed = true;
+    waiting.postMessage({ type: 'SKIP_WAITING' });
+  } else {
+    // Nothing newer cached (already current, or no worker): reload for the latest shell.
+    location.reload();
+  }
+}
+
+press('updateBtn', () => { void applyUpdate(); });
+
 // PWA service worker
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+  // controllerchange fires on the very first claim too — only reload when the
+  // player actually triggered the swap, so first visits don't bounce.
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (updateArmed) location.reload();
+  });
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {
+    navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).then(reg => {
+      swReg = reg;
+      if (reg.waiting && navigator.serviceWorker.controller) showUpdateReady();
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) showUpdateReady();
+        });
+      });
+    }).catch(() => {
       /* offline support is best-effort */
     });
   });
