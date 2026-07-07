@@ -915,11 +915,12 @@ export class Renderer {
     const ctx = this.ctx;
     const frac = Math.min(1, s.coins / s.night.quota);
     const rr = v.R + 20;
-    ctx.strokeStyle = 'rgba(224,168,60,.14)';
+    const ac = this.theme.accent;
+    ctx.strokeStyle = rgba(ac, 0.14);
     ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(0, 0, rr, -Math.PI / 2, -Math.PI / 2 + TAU); ctx.stroke();
     if (frac > 0) {
-      ctx.strokeStyle = frac >= 1 ? 'rgba(140,220,140,.85)' : 'rgba(224,168,60,.75)';
+      ctx.strokeStyle = frac >= 1 ? 'rgba(140,220,140,.85)' : rgba(ac, 0.78);
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
       ctx.beginPath(); ctx.arc(0, 0, rr, -Math.PI / 2, -Math.PI / 2 + TAU * frac); ctx.stroke();

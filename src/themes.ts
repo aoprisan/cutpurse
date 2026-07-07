@@ -34,6 +34,12 @@ export interface Theme {
   sky: { top: RGB; bot: RGB; dawnTop: RGB; dawnBot: RGB };
   stars: number;
   moon: boolean;
+  /**
+   * The district's signature light. Drives the quota arc on the canvas and,
+   * lifted into CSS, re-tints the whole UI chrome so frame and night read as
+   * one lit scene. Chosen to sit legibly on the dark shell.
+   */
+  accent: RGB;
   /** What rings the plaza: city rooftops, fortress walls, or cavern rock. */
   ring: RingStyle;
   /** Occasional tall steeples on the roofline. */
@@ -63,7 +69,7 @@ export const THEMES = {
   /** Night 1 — a muddy pauper's quarter of leaning shacks. */
   slums: {
     sky: { top: [10, 8, 16], bot: [23, 19, 26], dawnTop: [42, 29, 38], dawnBot: [66, 45, 45] },
-    stars: 30, moon: true, ring: 'roofs',
+    stars: 30, moon: true, ring: 'roofs', accent: [231, 161, 58],
     ringFill: '#0d0a0e', ringBump: '#121014',
     windows: { style: 'dot', color: [200, 150, 70], n: 10 },
     plaza: ['#2e2620', '#241d18', '#191410'], plazaLine: 'rgba(90,75,55,.3)', rim: '#3a3026',
@@ -80,7 +86,7 @@ export const THEMES = {
   /** Night 2 — awnings, bunting and bales by lamplight. */
   market: {
     sky: { top: [12, 9, 22], bot: [26, 19, 36], dawnTop: [46, 27, 48], dawnBot: [74, 42, 56] },
-    stars: 40, moon: true, ring: 'roofs',
+    stars: 40, moon: true, ring: 'roofs', accent: [216, 116, 140],
     ringFill: '#0b0918', ringBump: '#0e0b1d',
     windows: { style: 'dot', color: [224, 168, 60], n: 34 },
     plaza: ['#2a2138', '#211a2c', '#171220'], plazaLine: 'rgba(60,50,100,.35)', rim: '#2f2750',
@@ -98,7 +104,7 @@ export const THEMES = {
   /** Night 3 — a quay under sea-mist, masts against the moon. */
   harbor: {
     sky: { top: [7, 12, 22], bot: [15, 25, 38], dawnTop: [36, 36, 54], dawnBot: [58, 64, 74] },
-    stars: 34, moon: true, ring: 'roofs',
+    stars: 34, moon: true, ring: 'roofs', accent: [91, 176, 214],
     ringFill: '#081018', ringBump: '#0b141d',
     windows: { style: 'dot', color: [150, 200, 220], n: 16 },
     plaza: ['#1e2a36', '#18222e', '#101822'], plazaLine: 'rgba(70,100,120,.3)', rim: '#28404e',
@@ -116,7 +122,7 @@ export const THEMES = {
   /** Night 4 — pale stone, a colonnade, braziers and incense. */
   temple: {
     sky: { top: [13, 11, 24], bot: [26, 22, 38], dawnTop: [50, 34, 46], dawnBot: [80, 56, 58] },
-    stars: 44, moon: true, ring: 'roofs',
+    stars: 44, moon: true, ring: 'roofs', accent: [230, 190, 106],
     ringFill: '#100d1e', ringBump: '#151228',
     windows: { style: 'dot', color: [230, 190, 120], n: 12 },
     plaza: ['#3a3448', '#2e2a3c', '#1f1b2b'], plazaLine: 'rgba(150,140,160,.22)', rim: '#4a4458',
@@ -133,7 +139,7 @@ export const THEMES = {
   /** Night 5 — glass lamps, clipped topiary, money on show. */
   gilded: {
     sky: { top: [14, 11, 26], bot: [30, 22, 40], dawnTop: [52, 32, 52], dawnBot: [84, 52, 62] },
-    stars: 36, moon: true, ring: 'roofs',
+    stars: 36, moon: true, ring: 'roofs', accent: [232, 194, 79],
     ringFill: '#0d0a1c', ringBump: '#121026',
     windows: { style: 'dot', color: [240, 200, 110], n: 44 },
     plaza: ['#38304a', '#2c2540', '#1e1930'], plazaLine: 'rgba(180,150,90,.2)', rim: '#57496a',
@@ -151,7 +157,7 @@ export const THEMES = {
   /** Night 6 — a black market under the streets; no sky, no moon. */
   undermarket: {
     sky: { top: [6, 7, 6], bot: [10, 12, 9], dawnTop: [12, 14, 9], dawnBot: [18, 20, 12] },
-    stars: 0, moon: false, ring: 'cavern',
+    stars: 0, moon: false, ring: 'cavern', accent: [111, 220, 140],
     ringFill: '#070906', ringBump: '#0e130c',
     windows: { style: 'dot', color: [120, 220, 140], n: 18 },
     plaza: ['#1c231a', '#161c14', '#0e120d'], plazaLine: 'rgba(90,140,90,.25)', rim: '#2a3a28',
@@ -169,7 +175,7 @@ export const THEMES = {
   /** Night 7 — grey stone, statues, a gallows, thin cold rain. */
   magistrate: {
     sky: { top: [10, 12, 20], bot: [20, 24, 34], dawnTop: [36, 38, 50], dawnBot: [58, 60, 68] },
-    stars: 12, moon: false, ring: 'roofs',
+    stars: 12, moon: false, ring: 'roofs', accent: [143, 176, 204],
     ringFill: '#0a0c12', ringBump: '#0d1019',
     windows: { style: 'dot', color: [190, 200, 220], n: 14 },
     plaza: ['#262b38', '#1e222e', '#141822'], plazaLine: 'rgba(120,130,150,.22)', rim: '#39404e',
@@ -187,7 +193,7 @@ export const THEMES = {
   /** Night 8 — crenellated walls, braziers, sparks on the wind. */
   bastion: {
     sky: { top: [9, 8, 14], bot: [18, 16, 24], dawnTop: [40, 26, 32], dawnBot: [64, 40, 40] },
-    stars: 40, moon: true, ring: 'walls',
+    stars: 40, moon: true, ring: 'walls', accent: [224, 130, 70],
     ringFill: '#0e0c0e', ringBump: '#221b21',
     windows: { style: 'slit', color: [235, 160, 70], n: 12 },
     plaza: ['#28222a', '#201a22', '#151116'], plazaLine: 'rgba(140,110,110,.2)', rim: '#453a3e',
@@ -205,7 +211,7 @@ export const THEMES = {
   /** Night 9 — stained glass, yew trees, graves in the ground-mist. */
   cathedral: {
     sky: { top: [12, 8, 26], bot: [24, 16, 44], dawnTop: [44, 28, 58], dawnBot: [72, 46, 70] },
-    stars: 50, moon: true, ring: 'roofs', spires: true,
+    stars: 50, moon: true, ring: 'roofs', spires: true, accent: [181, 138, 214],
     ringFill: '#0c081a', ringBump: '#110c22',
     windows: { style: 'stained', color: [180, 120, 200], n: 20 },
     plaza: ['#251e3c', '#1d1730', '#131020'], plazaLine: 'rgba(130,110,180,.25)', rim: '#3c3260',
@@ -222,7 +228,7 @@ export const THEMES = {
   /** Night 10 — marble, festoons, fireworks over the masquerade. */
   palace: {
     sky: { top: [16, 10, 30], bot: [34, 20, 50], dawnTop: [56, 32, 62], dawnBot: [92, 54, 74] },
-    stars: 46, moon: true, ring: 'roofs', spires: true,
+    stars: 46, moon: true, ring: 'roofs', spires: true, accent: [240, 210, 122],
     ringFill: '#120c20', ringBump: '#181129',
     windows: { style: 'dot', color: [250, 210, 120], n: 50 },
     plaza: ['#403452', '#332a44', '#242032'], plazaLine: 'rgba(220,180,110,.22)', rim: '#6a5680',

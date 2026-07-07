@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#131022">
+<meta name="theme-color" content="#0b0a10" id="themeColor">
 <meta name="description" content="Cutpurse — a ten-night thieving campaign. Lift purses while the watch looks away, bank your take, and grow the Guild.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,118 +13,282 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <title>Cutpurse</title>
 <style>
-  :root{--night:#131022;--night2:#1c1730;--lantern:#e0a83c;--cloth:#a03030;--parch:#e3d5b3;--dim:#7a7290;--good:#8cdc8c}
+  :root{
+    /* --accent is the current district's light; main.ts swaps it each night. */
+    --accent:231,161,58;
+    --pitch:#08070c;
+    --field:#100e15;
+    --edge:#211c2a;
+    --tallow:#ece0c4;
+    --ash:#8f8878;
+    --ash-dim:#5b5568;
+    --danger:#d05346;
+    --good:#79c98a;
+    --serif:'Iowan Old Style','Palatino Linotype','Book Antiqua',Palatino,'URW Palladio L','P052',Georgia,serif;
+    --mono:'SFMono-Regular','SF Mono',ui-monospace,'DejaVu Sans Mono','Roboto Mono',Menlo,Consolas,monospace;
+  }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;overflow:hidden}
-  body{background:var(--night);color:var(--parch);font-family:Georgia,serif;
-    display:flex;flex-direction:column;align-items:center;user-select:none;-webkit-user-select:none;touch-action:manipulation;
-    padding-top:env(safe-area-inset-top)}
-  header{width:100%;max-width:440px;padding:12px 18px 4px;display:flex;justify-content:space-between;align-items:baseline}
-  h1{font-size:22px;letter-spacing:.28em;text-transform:uppercase;font-weight:400;color:var(--lantern);text-shadow:0 0 16px rgba(224,168,60,.4)}
-  .hud{display:flex;gap:13px;font-variant-numeric:tabular-nums;font-size:15px}
-  .hud span{color:var(--dim);font-size:10px;letter-spacing:.12em;text-transform:uppercase;display:block}
-  .hud b{transition:color .2s}
-  #muteBtn{cursor:pointer}
-  #wrap{position:relative;flex:1;width:100%;max-width:440px;min-height:0;display:flex;align-items:center;justify-content:center}
-  canvas{display:block;border-radius:12px;box-shadow:0 0 60px rgba(0,0,0,.6),inset 0 0 30px rgba(0,0,0,.4)}
-  .panel{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
-    background:rgba(10,8,20,.93);text-align:center;padding:20px;border-radius:12px;z-index:5;overflow-y:auto;
-    backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-  .panel.show{display:flex;animation:fadeIn .3s ease}
-  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-  .panel h2{font-size:19px;letter-spacing:.18em;text-transform:uppercase;font-weight:400;margin-bottom:8px}
-  .panel p{color:var(--dim);font-style:italic;max-width:300px;line-height:1.5;margin-bottom:12px}
-  .panel .big{font-size:42px;color:var(--lantern);margin-bottom:2px;text-shadow:0 0 24px rgba(224,168,60,.5)}
-  .panel .quota{color:var(--lantern);font-style:normal;margin-bottom:6px}
-  .panel .coffers{color:var(--dim);font-size:13px;margin-bottom:14px}
-  button{background:var(--night2);border:1px solid var(--lantern);color:var(--lantern);cursor:pointer;
-    font-family:inherit;font-size:14px;letter-spacing:.15em;text-transform:uppercase;padding:12px 24px;border-radius:6px;margin:5px;
-    transition:background .15s,box-shadow .15s}
-  button:hover{background:#241d3e;box-shadow:0 0 18px rgba(224,168,60,.25)}
-  button.ghost{border-color:#4a3f6b;color:var(--dim)}
-  .relic{display:block;width:100%;max-width:290px;text-align:left;text-transform:none;letter-spacing:0;
-    border-color:#4a3f6b;color:var(--parch);padding:14px 16px}
-  .relic b{color:var(--lantern);display:block;font-size:15px;letter-spacing:.06em;margin-bottom:3px}
-  .relic small{color:var(--dim);font-style:italic}
-  #slipBtn{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;z-index:4;display:none;
-    background:rgba(16,13,28,.88);border-color:var(--good);color:var(--good);font-size:12px;padding:9px 18px}
-  #slipBtn.show{display:block;animation:slipPulse 1.6s ease-in-out infinite}
-  @keyframes slipPulse{0%,100%{box-shadow:0 0 6px rgba(140,220,140,.2)}50%{box-shadow:0 0 20px rgba(140,220,140,.55)}}
-  /* Guild skill tree */
-  #treeCols{display:flex;gap:8px;width:100%;max-width:420px;align-items:flex-start}
+  body{
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(var(--accent),.05), transparent 60%),
+      var(--pitch);
+    color:var(--tallow);font-family:var(--serif);
+    display:flex;flex-direction:column;align-items:center;user-select:none;-webkit-user-select:none;
+    touch-action:manipulation;padding-top:env(safe-area-inset-top);
+    transition:background 1.2s ease;
+  }
+
+  /* ---- masthead ---- */
+  header{width:100%;max-width:452px;padding:14px 20px 10px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+  .brand{display:flex;flex-direction:column;line-height:1}
+  h1{
+    font-family:var(--serif);font-weight:600;font-size:27px;letter-spacing:.11em;
+    text-transform:uppercase;color:var(--tallow);position:relative;
+  }
+  h1::first-letter{color:rgb(var(--accent))}
+  .tagline{
+    font-family:var(--mono);font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--ash-dim);margin-top:7px;padding-left:.15em;transition:color 1.2s ease;
+  }
+  .sound{
+    font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ash);background:transparent;border:1px solid var(--edge);border-radius:3px;
+    padding:6px 9px;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap;
+  }
+  .sound::before{content:'\266A\2009';color:rgb(var(--accent))}
+  .sound:hover{color:var(--tallow);border-color:rgba(var(--accent),.5)}
+
+  /* ---- ledger strip HUD ---- */
+  .ledger-strip{
+    width:100%;max-width:452px;display:flex;padding:0 20px;margin-bottom:9px;
+    border-top:1px solid var(--edge);
+  }
+  .cell{flex:1;padding:9px 0 8px;text-align:center;position:relative}
+  .cell + .cell::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:1px;background:var(--edge)}
+  .cell.take{flex:1.5}
+  .cell span{
+    display:block;font-family:var(--mono);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--ash-dim);margin-bottom:4px;
+  }
+  .cell b{
+    display:block;font-family:var(--mono);font-weight:500;font-size:16px;font-variant-numeric:tabular-nums;
+    letter-spacing:.02em;color:var(--tallow);transition:color .25s;
+  }
+  #hearts{letter-spacing:.06em}
+  .cell b.met{color:var(--good)}
+  .cell b.low{color:var(--danger)}
+
+  /* ---- canvas frame: the lit window on the night ---- */
+  #wrap{position:relative;flex:1;width:100%;max-width:452px;min-height:0;display:flex;align-items:center;justify-content:center;padding:2px 8px}
+  canvas{
+    display:block;border-radius:10px;border:1px solid rgba(var(--accent),.16);
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,.5),
+      0 18px 50px rgba(0,0,0,.6),
+      0 0 46px rgba(var(--accent),.09),
+      inset 0 0 40px rgba(0,0,0,.45);
+    transition:border-color 1.2s ease,box-shadow 1.2s ease;
+  }
+
+  /* ---- pinned-notice panels ---- */
+  .panel{
+    position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+    padding:16px;border-radius:10px;z-index:5;overflow-y:auto;
+    background:radial-gradient(130% 100% at 50% 0%, rgba(10,8,16,.82), rgba(6,5,10,.94));
+    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  }
+  .panel.show{display:flex;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .notice{
+    width:100%;max-width:326px;text-align:left;
+    border-top:2px solid rgb(var(--accent));
+    background:linear-gradient(180deg, rgba(var(--accent),.05), transparent 42%), rgba(16,14,21,.55);
+    padding:20px 22px 22px;border-radius:0 0 4px 4px;
+    box-shadow:0 14px 40px rgba(0,0,0,.5);
+    animation:settle .4s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes settle{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+  .notice.center{text-align:center}
+  .eyebrow{
+    font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;
+    color:rgb(var(--accent));margin-bottom:9px;
+  }
+  .notice h2{
+    font-family:var(--serif);font-weight:600;font-size:25px;line-height:1.08;letter-spacing:.005em;
+    color:var(--tallow);margin-bottom:4px;
+  }
+  .notice p{
+    font-family:var(--serif);font-style:italic;font-size:14.5px;line-height:1.55;color:var(--ash);
+    margin:12px 0;
+  }
+  .notice p.terse{font-style:normal;color:var(--tallow);font-family:var(--mono);font-size:12px;line-height:1.6;letter-spacing:.02em}
+
+  /* ledger lines inside a notice */
+  .rows{margin:14px 0 4px;border-top:1px solid var(--edge)}
+  .rows div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:8px 0;border-bottom:1px solid var(--edge)}
+  .rows dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash-dim)}
+  .rows dd{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums;color:var(--tallow)}
+  .rows dd em{font-style:normal;color:rgb(var(--accent))}
+
+  /* the struck-coin tally on the dawn panel */
+  .tally{
+    font-family:var(--mono);font-weight:600;font-size:44px;line-height:1;font-variant-numeric:tabular-nums;
+    color:rgb(var(--accent));margin:2px 0 2px;letter-spacing:-.01em;
+  }
+  .tally small{font-size:15px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ash);margin-left:6px}
+
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  button{
+    font-family:var(--mono);font-weight:600;font-size:11.5px;letter-spacing:.15em;text-transform:uppercase;
+    color:rgb(var(--accent));background:rgba(var(--accent),.07);
+    border:1px solid rgba(var(--accent),.55);border-radius:3px;padding:12px 18px;cursor:pointer;
+    transition:background .15s,border-color .15s,box-shadow .15s,color .15s;
+  }
+  button:hover{background:rgba(var(--accent),.15);border-color:rgb(var(--accent));box-shadow:0 0 18px rgba(var(--accent),.22)}
+  button:focus-visible{outline:2px solid rgb(var(--accent));outline-offset:2px}
+  button.ghost{color:var(--ash);background:transparent;border-color:var(--edge)}
+  button.ghost:hover{color:var(--tallow);border-color:var(--ash-dim);box-shadow:none;background:rgba(255,255,255,.02)}
+
+  /* relic picks */
+  #relicBtns{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+  .relic{
+    display:block;text-align:left;text-transform:none;letter-spacing:0;font-family:var(--serif);font-weight:400;
+    color:var(--tallow);background:rgba(var(--accent),.04);border:1px solid var(--edge);border-left:2px solid rgba(var(--accent),.5);
+    padding:12px 14px;border-radius:0 3px 3px 0;
+  }
+  .relic:hover{background:rgba(var(--accent),.1);border-left-color:rgb(var(--accent))}
+  .relic b{display:block;font-family:var(--serif);font-size:15px;color:rgb(var(--accent));margin-bottom:3px;letter-spacing:.01em}
+  .relic small{display:block;font-style:italic;font-size:12.5px;line-height:1.4;color:var(--ash)}
+
+  /* the slip-away escape */
+  #slipBtn{
+    position:absolute;left:50%;transform:translateX(-50%);bottom:14px;z-index:4;display:none;
+    background:rgba(10,16,11,.9);border-color:rgba(121,201,138,.7);color:var(--good);
+    font-size:11px;padding:10px 16px;
+  }
+  #slipBtn.show{display:block;animation:slip 1.7s ease-in-out infinite}
+  #slipBtn:hover{background:rgba(16,26,18,.95);border-color:var(--good);box-shadow:0 0 20px rgba(121,201,138,.4)}
+  @keyframes slip{0%,100%{box-shadow:0 0 6px rgba(121,201,138,.2)}50%{box-shadow:0 0 22px rgba(121,201,138,.5)}}
+
+  /* ---- Guild skill tree ---- */
+  #treeCols{display:flex;gap:8px;width:100%;max-width:420px;align-items:flex-start;margin-top:14px}
   .branch{flex:1;min-width:0}
-  .branch h3{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-weight:400;margin-bottom:6px}
-  .node{display:block;width:100%;text-align:left;text-transform:none;letter-spacing:0;margin:0 0 7px;
-    padding:8px 9px;border-color:#3a3158;color:var(--parch)}
-  .node b{display:block;font-size:12px;color:var(--lantern);margin-bottom:2px}
-  .node small{display:block;font-size:10.5px;line-height:1.35;color:var(--dim);font-style:italic;margin-bottom:3px}
-  .node .cost{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
-  .node.available{border-color:var(--lantern)}
-  .node.available .cost{color:var(--lantern)}
-  .node.owned{border-color:#3f6b3f;opacity:.9;cursor:default}
-  .node.owned .cost{color:var(--good)}
+  .branch h3{
+    font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ash-dim);
+    font-weight:600;margin-bottom:8px;text-align:center;padding-bottom:6px;border-bottom:1px solid var(--edge);
+  }
+  .node{
+    display:block;width:100%;text-align:left;text-transform:none;letter-spacing:0;margin:0 0 7px;
+    padding:8px 9px;font-family:var(--serif);font-weight:400;
+    background:rgba(255,255,255,.015);border:1px solid var(--edge);border-left:2px solid var(--edge);border-radius:0 3px 3px 0;
+    color:var(--tallow);
+  }
+  .node b{display:block;font-family:var(--serif);font-size:12.5px;color:var(--ash);margin-bottom:2px;letter-spacing:.01em}
+  .node small{display:block;font-size:10.5px;line-height:1.35;color:var(--ash-dim);font-style:italic;margin-bottom:4px}
+  .node .cost{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ash-dim)}
+  .node.available{border-left-color:rgb(var(--accent));background:rgba(var(--accent),.05)}
+  .node.available b{color:var(--tallow)}
+  .node.available .cost{color:rgb(var(--accent))}
+  .node.available:hover{background:rgba(var(--accent),.11)}
+  .node.owned{border-left-color:var(--good);opacity:.92;cursor:default}
   .node.owned b{color:var(--good)}
-  .node.poor,.node.locked{opacity:.45;cursor:default}
-  footer{padding:8px 18px calc(16px + env(safe-area-inset-bottom));color:var(--dim);font-style:italic;font-size:12.5px;text-align:center;max-width:440px}
-  /* campaign progress: one pip per night, lit as the campaign advances */
-  .campaign{display:flex;align-items:center;justify-content:center;margin:2px 0 12px}
+  .node.owned .cost{color:var(--good)}
+  .node.poor,.node.locked{opacity:.4;cursor:default}
+
+  /* ---- campaign itinerary ---- */
+  .campaign{display:flex;align-items:center;justify-content:center;margin:14px 0 2px}
+  .campaign.center{margin:14px auto 2px}
   .campaign i{display:block}
-  .campaign .pip{width:11px;height:11px;border-radius:50%;border:1px solid #4a3f6b;background:#1c1730;box-sizing:border-box}
-  .campaign .pip.done{background:#3f6b3f;border-color:#3f6b3f}
-  .campaign .pip.current{background:var(--lantern);border-color:var(--lantern);box-shadow:0 0 10px rgba(224,168,60,.75);animation:pipGlow 1.6s ease-in-out infinite alternate}
-  .campaign .pip.crown{border-color:var(--lantern)}
-  .campaign .link{width:13px;height:2px;background:#332b4e}
-  .campaign .link.done{background:#3f6b3f}
-  .campaign .link.next{background:linear-gradient(90deg,#3f6b3f,var(--lantern))}
-  @keyframes pipGlow{from{box-shadow:0 0 6px rgba(224,168,60,.45)}to{box-shadow:0 0 13px rgba(224,168,60,.9)}}
-  .campaignLabel{color:var(--dim);font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+  .campaign .pip{width:9px;height:9px;border-radius:50%;border:1px solid var(--ash-dim);background:transparent;box-sizing:border-box;transition:all .3s}
+  .campaign .pip.done{background:var(--good);border-color:var(--good)}
+  .campaign .pip.current{background:rgb(var(--accent));border-color:rgb(var(--accent));box-shadow:0 0 9px rgba(var(--accent),.8);animation:pulse 1.7s ease-in-out infinite alternate}
+  .campaign .pip.crown{width:11px;height:11px;border-radius:2px;transform:rotate(45deg)}
+  .campaign .link{width:10px;height:1px;background:var(--edge)}
+  .campaign .link.done{background:var(--good)}
+  .campaign .link.next{background:linear-gradient(90deg,var(--good),rgb(var(--accent)))}
+  @keyframes pulse{from{box-shadow:0 0 5px rgba(var(--accent),.45)}to{box-shadow:0 0 12px rgba(var(--accent),.9)}}
+
+  footer{
+    padding:9px 20px calc(15px + env(safe-area-inset-bottom));color:var(--ash-dim);
+    font-family:var(--mono);font-size:10px;letter-spacing:.06em;line-height:1.6;text-align:center;max-width:452px;
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>Cutpurse</h1>
-  <div class="hud">
-    <div><span>night</span><b id="nightNo">1</b></div>
-    <div><span>take</span><b id="coins">0∕60</b></div>
-    <div><span>time</span><b id="time">90</b></div>
-    <div><span>luck</span><b id="hearts">♥♥♥</b></div>
-    <div><span>sound</span><b id="muteBtn">on</b></div>
+  <div class="brand">
+    <h1>Cutpurse</h1>
+    <p class="tagline">A thieving in ten nights</p>
   </div>
+  <button id="muteBtn" class="sound" aria-label="Toggle sound">on</button>
 </header>
+<div class="ledger-strip">
+  <div class="cell"><span>Night</span><b id="nightNo">I</b></div>
+  <div class="cell take"><span>Take</span><b id="coins">0 / 60</b></div>
+  <div class="cell"><span>Time</span><b id="time">90</b></div>
+  <div class="cell"><span>Luck</span><b id="hearts">♥♥♥</b></div>
+</div>
 <div id="wrap">
   <canvas id="cv"></canvas>
   <button id="slipBtn">Slip away</button>
+
   <div class="panel" id="relicPanel">
-    <h2>A fence approaches</h2>
-    <p>Choose one relic to aid the night's work.</p>
-    <div id="relicBtns"></div>
+    <div class="notice">
+      <div class="eyebrow">A fence approaches</div>
+      <h2>Choose your boon</h2>
+      <p>One relic to aid the night's work — take it, and it holds till dawn.</p>
+      <div id="relicBtns"></div>
+    </div>
   </div>
+
   <div class="panel show" id="startPanel">
-    <h2 id="startTitle">Night 1 — Beggar's Yard</h2>
-    <div class="campaign" id="startCampaign"></div>
-    <p id="startFlavor"></p>
-    <div class="quota" id="startQuota"></div>
-    <div class="coffers" id="startCoffers"></div>
-    <button id="startBtn">Begin the night</button>
-    <button id="guildBtn" class="ghost">The Guild</button>
+    <div class="notice">
+      <div class="eyebrow" id="startEyebrow">Night I</div>
+      <h2 id="startTitle">Beggar's Yard</h2>
+      <div class="campaign" id="startCampaign"></div>
+      <p id="startFlavor"></p>
+      <dl class="rows">
+        <div><dt>Quota by dawn</dt><dd id="startQuota"></dd></div>
+        <div><dt>Guild coffers</dt><dd id="startCoffers"></dd></div>
+      </dl>
+      <div class="actions">
+        <button id="startBtn">Begin the night</button>
+        <button id="guildBtn" class="ghost">The Guild</button>
+      </div>
+    </div>
   </div>
+
   <div class="panel" id="guildPanel">
-    <h2>The Thieves' Guild</h2>
-    <div class="coffers" id="guildCoffers"></div>
-    <div id="treeCols"></div>
-    <button id="guildBackBtn" class="ghost">Back</button>
+    <div class="notice">
+      <div class="eyebrow">The Thieves' Guild</div>
+      <h2>Spend the take</h2>
+      <dl class="rows"><div><dt>In the coffers</dt><dd id="guildCoffers"></dd></div></dl>
+      <div id="treeCols"></div>
+      <div class="actions"><button id="guildBackBtn" class="ghost">Back</button></div>
+    </div>
   </div>
+
   <div class="panel" id="endPanel">
-    <h2 id="endTitle">Dawn breaks</h2>
-    <div class="big" id="endCoins">0</div>
-    <p id="endText"></p>
-    <div class="campaign" id="endCampaign"></div>
-    <div class="coffers" id="endCoffers"></div>
-    <button id="nextBtn">Next night</button>
-    <button id="endGuildBtn" class="ghost">The Guild</button>
+    <div class="notice">
+      <div class="eyebrow" id="endEyebrow">Dawn</div>
+      <h2 id="endTitle">Dawn breaks</h2>
+      <div class="tally"><span id="endCoins">0</span> <small>coin</small></div>
+      <p id="endText"></p>
+      <div class="campaign" id="endCampaign"></div>
+      <dl class="rows"><div><dt>Guild coffers</dt><dd id="endCoffers"></dd></div></dl>
+      <div class="actions">
+        <button id="nextBtn">Next night</button>
+        <button id="endGuildBtn" class="ghost">The Guild</button>
+      </div>
+    </div>
   </div>
 </div>
-<footer>Tap marks outside every lantern's gaze. Meet the quota, then slip away — or push your luck till dawn.</footer>
+<footer>Tap marks outside every lantern's gaze — meet the quota, then slip away or press your luck till dawn.</footer>
 <script type="module" src="src/main.ts"></script>
 </body>
 </html>

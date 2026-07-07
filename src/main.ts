@@ -3,6 +3,18 @@ import { NIGHTS } from './levels';
 import { BRANCH_NAMES, Branch, SKILLS, buySkill, loadSave, persist, skillStatus } from './progression';
 import { Renderer, View } from './render';
 import { ensureAudio, isMuted, sfx, toggleMute } from './sound';
+import { THEMES, ThemeId } from './themes';
+
+const ROMAN = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+const roman = (n: number): string => ROMAN[n] ?? String(n);
+
+/** Lift the district's signature light into the UI chrome and the PWA status bar. */
+function applyChrome(id: ThemeId): void {
+  const [r, g, b] = THEMES[id].accent;
+  document.documentElement.style.setProperty('--accent', `${r},${g},${b}`);
+  const tc = document.getElementById('themeColor');
+  if (tc) tc.setAttribute('content', `rgb(${Math.round(r * 0.14)},${Math.round(g * 0.14)},${Math.round(b * 0.14)})`);
+}
 
 const cv = document.getElementById('cv') as HTMLCanvasElement;
 const $ = (id: string): HTMLElement => {
@@ -63,10 +75,13 @@ let raf = 0;
 let last = 0;
 
 function hud(): void {
-  $('nightNo').textContent = String(S.night.id);
-  $('coins').textContent = `${S.coins}∕${S.night.quota}`;
-  ($('coins')).style.color = S.coins >= S.night.quota ? '#8cdc8c' : '';
-  $('time').textContent = String(Math.ceil(Math.max(0, S.t)));
+  $('nightNo').textContent = roman(S.night.id);
+  const met = S.coins >= S.night.quota;
+  $('coins').textContent = `${S.coins} / ${S.night.quota}`;
+  $('coins').classList.toggle('met', met);
+  const secs = Math.ceil(Math.max(0, S.t));
+  $('time').textContent = String(secs);
+  $('time').classList.toggle('low', !S.over && secs <= 15);
   $('hearts').textContent = '♥'.repeat(S.hearts) + (S.smoke ? '✶'.repeat(S.smoke) : '');
   const slip = $('slipBtn');
   if (!S.over && S.coins >= S.night.quota) {
@@ -86,12 +101,14 @@ function hideAllPanels(): void {
 function showStart(): void {
   const def = currentNight();
   renderer.setTheme(def.theme, view);
+  applyChrome(def.theme);
   hideAllPanels();
-  $('startTitle').textContent = `Night ${def.id} — ${def.name}`;
+  $('startEyebrow').textContent = `Night ${roman(def.id)}`;
+  $('startTitle').textContent = def.name;
   renderCampaign('startCampaign');
   $('startFlavor').textContent = def.flavor;
-  $('startQuota').textContent = `The Guild demands ${def.quota} coin by dawn.`;
-  $('startCoffers').textContent = `Guild coffers: ${save.coffers} coin`;
+  $('startQuota').textContent = `${def.quota} coin`;
+  $('startCoffers').textContent = `${save.coffers} coin`;
   $('startPanel').classList.add('show');
   S = newState(def, new Set(save.skills));
   hud();
@@ -145,7 +162,8 @@ function end(kind: EndKind): void {
   const title = $('endTitle');
   const text = $('endText');
   const next = $('nextBtn');
-  $('endCoins').textContent = `${S.coins} coin`;
+  $('endEyebrow').textContent = kind === 'caught' ? 'The watch has you' : `Night ${roman(def.id)} · dawn`;
+  $('endCoins').textContent = String(S.coins);
 
   switch (kind) {
     case 'caught':
@@ -180,7 +198,7 @@ function end(kind: EndKind): void {
   }
   persist(save);
   renderCampaign('endCampaign', kind === 'victory');
-  $('endCoffers').textContent = `Guild coffers: ${save.coffers} coin`;
+  $('endCoffers').textContent = `${save.coffers} coin`;
   hideAllPanels();
   $('endPanel').classList.add('show');
   ($('endPanel') as HTMLElement).dataset.kind = kind;
@@ -276,7 +294,7 @@ function loop(t: number): void {
 // --- Guild skill tree panel ---
 
 function renderGuild(): void {
-  $('guildCoffers').textContent = `${save.coffers} coin in the coffers`;
+  $('guildCoffers').textContent = `${save.coffers} coin`;
   const cols = $('treeCols');
   cols.innerHTML = '';
   const branches: Branch[] = ['fingers', 'shadow', 'guile'];
